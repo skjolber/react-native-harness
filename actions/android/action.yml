@@ -99,14 +99,6 @@ runs:
         disable-animations: true
         emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
         script: echo "Generated AVD snapshot for caching."
-    - name: Save AVD cache
-      if: steps.avd-cache.outputs.cache-hit != 'true'
-      uses: actions/cache/save@v4
-      with:
-        path: |
-          ~/.android/avd
-          ~/.android/adb*
-        key: ${{ steps.avd-key.outputs.key }}
     - name: Detect Package Manager
       id: detect-pm
       shell: bash
@@ -142,6 +134,14 @@ runs:
           echo $(pwd)
           adb install -r ${{ inputs.app }}
           ${{ steps.detect-pm.outputs.runner }}react-native-harness --harnessRunner ${{ inputs.runner }} ${{ inputs.harnessArgs }}
+    - name: Save AVD cache
+      if: steps.avd-cache.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: |
+          ~/.android/avd
+          ~/.android/adb*
+        key: ${{ steps.avd-key.outputs.key }}
     - name: Upload visual test artifacts
       if: always() && inputs.uploadVisualTestArtifacts == 'true'
       uses: actions/upload-artifact@v4
